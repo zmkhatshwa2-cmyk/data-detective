@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Detective - Creator Metrics Translator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0E0E0E;
+            --green: #00d63a;
+            --green-light: #e6fff0;
+            --green-dark: #00a82e;
+            --cream: #FAF8F4;
+            --white: #FFFFFF;
+            --grey1: #F2EFE9;
+            --grey2: #E0DBD2;
+            --grey3: #9A9488;
+            --grey4: #5A5650;
+            --teal: #00B37D;
+            --teal-light: #E0F7EF;
+            --teal-dark: #007A54;
+            --red: #C0392B;
+            --red-light: #FBEAE8;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            min-height: 100vh;
+            color: var(--black);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        /* ── HERO HEADER ── */
+        .hero {
+            background: var(--black);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 36px;
+        }
+        .hero-grid {
+            position: absolute; inset: 0;
+            background-image:
+              linear-gradient(rgba(0,214,58,0.06) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,214,58,0.06) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+        .hero-glow {
+            position: absolute;
+            top: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 300px;
+            background: radial-gradient(ellipse, rgba(0,214,58,0.14) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-inner {
+            position: relative;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0,214,58,0.4);
+            color: #00d63a;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 22px;
+        }
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(32px, 6vw, 56px);
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.0;
+            letter-spacing: -1.5px;
+            margin-bottom: 10px;
+        }
+        .hero-title span { color: #00d63a; }
+        .hero-sub {
+            font-size: clamp(14px, 2.2vw, 17px);
+            color: #999;
+            max-width: 480px;
+            line-height: 1.6;
+        }
+        .hero-bottom-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00d63a, transparent);
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--grey2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 32px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-family: 'Syne', sans-serif;
+            color: var(--black);
+            font-weight: 700;
+        }
+
+        .platform-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .platform-btn {
+            padding: 16px 20px;
+            border: 1.5px solid var(--grey2);
+            border-radius: 14px;
+            background: var(--cream);
+            color: var(--black);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .platform-btn:hover {
+            border-color: var(--grey3);
+            background: var(--white);
+        }
+
+        .platform-btn.active {
+            background: var(--black);
+            border-color: var(--black);
+            color: var(--white);
+            box-shadow: 0 0 0 3px rgba(0, 214, 58, 0.25);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--grey4);
+            font-weight: 600;
+            font-size: 0.85em;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid var(--grey2);
+            border-radius: 10px;
+            background: var(--white);
+            color: var(--black);
+            font-size: 1em;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--grey3);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(0, 214, 58, 0.15);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--black);
+            border-radius: 14px;
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05em;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--green);
+            border-color: var(--green);
+            color: var(--black);
+        }
+
+        .insights {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .insight-card {
+            background: var(--green-light);
+            border: 1px solid rgba(0, 179, 125, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .insight-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.15em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--teal-dark);
+        }
+
+        .insight-text {
+            color: var(--black);
+            line-height: 1.6;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 100px;
+            background: var(--white);
+            border: 1px solid rgba(0, 179, 125, 0.3);
+            color: var(--teal-dark);
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .history-section {
+            margin-top: 40px;
+        }
+
+        .history-item {
+            background: var(--cream);
+            border: 1.5px solid var(--grey2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--green);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background: var(--grey1);
+            border-color: var(--grey3);
+            transform: translateX(5px);
+        }
+
+        .history-date {
+            font-size: 0.9em;
+            color: var(--grey3);
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-section h3 {
+            font-family: 'Syne', sans-serif;
+            margin-bottom: 20px;
+            color: var(--green-dark);
+            font-weight: 700;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .platform-selector {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        button[onclick="clearAllHistory()"]:hover {
+            background: var(--red-light) !important;
+            border-color: var(--red) !important;
+            color: var(--red) !important;
+            transform: translateY(-2px);
+        }
+
+        /* AI Growth Coach styles */
+        .ai-subtitle {
+            color: var(--grey4);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        textarea#ai-context {
+            resize: vertical;
+            min-height: 110px;
+            font-family: inherit;
+        }
+
+        #aiCoachBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .ai-loading {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            color: var(--grey4);
+        }
+
+        .ai-spinner {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(0, 214, 58, 0.25);
+            border-top-color: var(--green-dark);
+            border-radius: 50%;
+            animation: ai-spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes ai-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-result {
+            display: none;
+            margin-top: 20px;
+            background: var(--black);
+            border-radius: 16px;
+            padding: 24px 26px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-result::before {
+            content: '"';
+            position: absolute; top: -14px; left: 16px;
+            font-family: 'Syne', sans-serif;
+            font-size: 110px; font-weight: 800;
+            color: rgba(0, 214, 58, 0.12);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .ai-result .insight-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #00d63a;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .ai-result .insight-text {
+            white-space: pre-wrap;
+            color: #d6d6d6;
+            font-style: italic;
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .ai-error {
+            display: none;
+            margin-top: 20px;
+            background: var(--red-light);
+            border: 1.5px solid rgba(192, 57, 43, 0.35);
+            border-radius: 15px;
+            padding: 18px 20px;
+            color: var(--red);
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .page-footer {
+            background: var(--black);
+            padding: 28px 24px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .footer-brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px; font-weight: 700;
+            color: #00d63a;
+            margin-bottom: 4px;
+        }
+        .footer-sub { font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-glow"></div>
+        <div class="hero-inner">
+            <div class="hero-badge">✦ Learn with Zar · Creator Tools</div>
+            <h1 class="hero-title">Data <span>Detective</span></h1>
+            <p class="hero-sub">Stop chasing views &amp; followers/subscribers. Start reading patterns.</p>
+        </div>
+        <div class="hero-bottom-bar"></div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Select Your Platform</h2>
+            <div class="platform-selector">
+                <button class="platform-btn" data-platform="youtube">YouTube</button>
+                <button class="platform-btn" data-platform="tiktok">TikTok</button>
+                <button class="platform-btn" data-platform="instagram">Instagram</button>
+                <button class="platform-btn" data-platform="facebook">Facebook</button>
+            </div>
+
+            <!-- YouTube Form -->
+            <div id="youtube-form" class="form-section">
+                <h3>YouTube Metrics</h3>
+                <div class="input-group">
+                    <label>Video Title/Topic</label>
+                    <input type="text" id="yt-title" placeholder="e.g., CapCut Tutorial 2024">
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Total Views</label>
+                        <input type="number" id="yt-views" placeholder="e.g., 1500">
+                    </div>
+                    <div class="input-group">
+                        <label>Watch Time (%)</label>
+                        <input type="number" id="yt-watchtime" placeholder="e.g., 45">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Click-Through Rate (CTR %)</label>
+                        <input type="number" id="yt-ctr" placeholder="e.g., 5.2">
+                    </div>
+                    <div class="input-group">
+                        <label>Likes</label>
+                        <input type="number" id="yt-likes" placeholder="e.g., 87">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Comments</label>
+                        <input type="number" id="yt-comments" placeholder="e.g., 23">
+                    </div>
+                    <div class="input-group">
+                        <label>Shares</label>
+                        <input type="number" id="yt-shares" placeholder="e.g., 12">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Main Traffic Source</label>
+                    <select id="yt-traffic">
+                        <option value="search">YouTube Search</option>
+                        <option value="browse">Browse Features</option>
+                        <option value="suggested">Suggested Videos</option>
+                        <option value="external">External (Google, etc.)</option>
+                        <option value="direct">Direct/Unknown</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- TikTok Form -->
+            <div id="tiktok-form" class="form-section">
+                <h3>TikTok Metrics</h3>
+                <div class="input-group">
+                    <label>Video Topic/Description</label>
+                    <input type="text" id="tt-title" placeholder="e.g., Quick editing hack">
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Total Views</label>
+                        <input type="number" id="tt-views" placeholder="e.g., 5000">
+                    </div>
+                    <div class="input-group">
+                        <label>Average Watch Time (%)</label>
+                        <input type="number" id="tt-watchtime" placeholder="e.g., 65">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Likes</label>
+                        <input type="number" id="tt-likes" placeholder="e.g., 450">
+                    </div>
+                    <div class="input-group">
+                        <label>Comments</label>
+                        <input type="number" id="tt-comments" placeholder="e.g., 34">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Shares</label>
+                        <input type="number" id="tt-shares" placeholder="e.g., 89">
+                    </div>
+                    <div class="input-group">
+                        <label>Saves</label>
+                        <input type="number" id="tt-saves" placeholder="e.g., 156">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Main Traffic Source</label>
+                    <select id="tt-traffic">
+                        <option value="fyp">For You Page</option>
+                        <option value="following">Following Feed</option>
+                        <option value="profile">Profile Views</option>
+                        <option value="search">Search</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Instagram Form -->
+            <div id="instagram-form" class="form-section">
+                <h3>Instagram Metrics</h3>
+                <div class="input-group">
+                    <label>Post Topic/Description</label>
+                    <input type="text" id="ig-title" placeholder="e.g., Creator tips carousel">
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Total Reach</label>
+                        <input type="number" id="ig-reach" placeholder="e.g., 3200">
+                    </div>
+                    <div class="input-group">
+                        <label>Impressions</label>
+                        <input type="number" id="ig-impressions" placeholder="e.g., 4500">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Likes</label>
+                        <input type="number" id="ig-likes" placeholder="e.g., 287">
+                    </div>
+                    <div class="input-group">
+                        <label>Comments</label>
+                        <input type="number" id="ig-comments" placeholder="e.g., 45">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Shares</label>
+                        <input type="number" id="ig-shares" placeholder="e.g., 67">
+                    </div>
+                    <div class="input-group">
+                        <label>Saves</label>
+                        <input type="number" id="ig-saves" placeholder="e.g., 134">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Main Traffic Source</label>
+                    <select id="ig-traffic">
+                        <option value="home">Home Feed</option>
+                        <option value="explore">Explore</option>
+                        <option value="profile">Profile</option>
+                        <option value="hashtags">Hashtags</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Facebook Form -->
+            <div id="facebook-form" class="form-section">
+                <h3>Facebook Metrics</h3>
+                <div class="input-group">
+                    <label>Post Topic/Description</label>
+                    <input type="text" id="fb-title" placeholder="e.g., Video editing tutorial">
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Total Reach</label>
+                        <input type="number" id="fb-reach" placeholder="e.g., 2800">
+                    </div>
+                    <div class="input-group">
+                        <label>Engagement</label>
+                        <input type="number" id="fb-engagement" placeholder="e.g., 234">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Reactions</label>
+                        <input type="number" id="fb-reactions" placeholder="e.g., 156">
+                    </div>
+                    <div class="input-group">
+                        <label>Comments</label>
+                        <input type="number" id="fb-comments" placeholder="e.g., 28">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="input-group">
+                        <label>Shares</label>
+                        <input type="number" id="fb-shares" placeholder="e.g., 42">
+                    </div>
+                    <div class="input-group">
+                        <label>Video Views (if applicable)</label>
+                        <input type="number" id="fb-videoviews" placeholder="e.g., 1500">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Main Traffic Source</label>
+                    <select id="fb-traffic">
+                        <option value="news_feed">News Feed</option>
+                        <option value="page">Your Page</option>
+                        <option value="shares">Shares</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="analyzeBtn" style="margin-top: 20px;">🔮 Analyze My Data</button>
+        </div>
+
+        <div id="insights-container" class="insights"></div>
+
+        <div class="card" id="ai-coach-card">
+            <h2>🤖 Ask Your AI Growth Coach</h2>
+            <p class="ai-subtitle">Numbers only tell part of the story. Tell the AI Coach what's really going on with your content — your niche, your goal, what you tried, what's frustrating you — and get a personalized plan back. If you've already analyzed a platform above, your numbers get included automatically.</p>
+
+            <div class="input-group">
+                <label for="ai-context">Tell the Coach what's going on</label>
+                <textarea id="ai-context" placeholder="e.g., I post tutorials for small business owners in South Africa. This one got more views than usual but barely any comments, and I'm not sure if I should keep doing this format or try something new."></textarea>
+            </div>
+
+            <button class="btn-primary" id="aiCoachBtn">🔮 Get My Personalized Plan</button>
+
+            <div class="ai-loading" id="ai-loading">
+                <span class="ai-spinner"></span>Reading your data and thinking it through...
+            </div>
+
+            <div class="insight-card ai-result" id="ai-result"></div>
+
+            <div class="ai-error" id="ai-error">
+                ⚠️ Couldn't reach your AI Coach right now. This sometimes happens with a flaky connection — check your internet and give it another try in a moment.
+            </div>
+        </div>
+
+        <div class="history-section" id="history-section" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📊 Your History</h2>
+                    <button onclick="clearAllHistory()" style="padding: 10px 20px; border: 2px solid rgba(192, 57, 43, 0.4); border-radius: 10px; background: rgba(192, 57, 43, 0.08); color: #C0392B; font-size: 0.9em; cursor: pointer; transition: all 0.2s ease;">
+                        🗑️ Clear All History
+                    </button>
+                </div>
+                <div id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <div class="footer-brand">Learn with Zar · Data Detective</div>
+        <div class="footer-sub">Turning your numbers into your next move.</div>
+    </footer>
+
+    <script>
+        let currentPlatform = null;
+        let analysisHistory = JSON.parse(localStorage.getItem('dataDetectiveHistory') || '[]');
+
+        // Clear history function
+        function clearAllHistory() {
+            analysisHistory = [];
+            localStorage.removeItem('dataDetectiveHistory');
+            document.getElementById('history-section').style.display = 'none';
+            alert('History cleared! Starting fresh 🎉');
+        }
+
+        // Platform selection
+        document.querySelectorAll('.platform-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                currentPlatform = this.dataset.platform;
+                
+                document.querySelectorAll('.form-section').forEach(form => {
+                    form.classList.remove('active');
+                });
+                
+                document.getElementById(currentPlatform + '-form').classList.add('active');
+            });
+        });
+
+        // Analysis function
+        document.getElementById('analyzeBtn').addEventListener('click', function() {
+            if (!currentPlatform) {
+                alert('Please select a platform first!');
+                return;
+            }
+
+            const insights = analyzeMetrics(currentPlatform);
+            displayInsights(insights);
+            
+            // Save to history
+            const entry = {
+                platform: currentPlatform,
+                date: new Date().toISOString(),
+                data: getCurrentFormData(),
+                insights: insights
+            };
+            
+            analysisHistory.unshift(entry);
+            if (analysisHistory.length > 20) analysisHistory.pop();
+            localStorage.setItem('dataDetectiveHistory', JSON.stringify(analysisHistory));
+            
+            updateHistoryDisplay();
+        });
+
+        function getCurrentFormData() {
+            const prefix = currentPlatform === 'youtube' ? 'yt' : 
+                          currentPlatform === 'tiktok' ? 'tt' :
+                          currentPlatform === 'instagram' ? 'ig' : 'fb';
+            
+            const data = {};
+            document.querySelectorAll(`#${currentPlatform}-form input, #${currentPlatform}-form select`).forEach(input => {
+                data[input.id] = input.value;
+            });
+            return data;
+        }
+
+        function analyzeMetrics(platform) {
+            const insights = [];
+            
+            if (platform === 'youtube') {
+                const views = parseInt(document.getElementById('yt-views').value) || 0;
+                const watchtime = parseInt(document.getElementById('yt-watchtime').value) || 0;
+                const ctr = parseFloat(document.getElementById('yt-ctr').value) || 0;
+                const likes = parseInt(document.getElementById('yt-likes').value) || 0;
+                const comments = parseInt(document.getElementById('yt-comments').value) || 0;
+                const shares = parseInt(document.getElementById('yt-shares').value) || 0;
+                const traffic = document.getElementById('yt-traffic').value;
+                
+                // Watch time analysis
+                if (watchtime < 30) {
+                    insights.push({
+                        title: '⚠️ Hook Problem Detected',
+                        text: `Your ${watchtime}% watch time means people are dropping off quickly. Your thumbnail/title got the click (that's good!), but your first 10 seconds aren't delivering on the promise. Next video: Test a stronger hook that immediately shows what they'll learn.`,
+                        badges: ['Watch Time', 'Hook']
+                    });
+                } else if (watchtime >= 30 && watchtime < 50) {
+                    insights.push({
+                        title: '🎯 Good Hook, Weak Middle',
+                        text: `${watchtime}% watch time shows people are interested but losing momentum halfway. Your hook works! Now tighten your middle section - cut fluff, add pattern interrupts (text, music changes), and get to the value faster.`,
+                        badges: ['Watch Time', 'Pacing']
+                    });
+                } else if (watchtime >= 50 && watchtime < 70) {
+                    insights.push({
+                        title: '✅ Strong Content Performance',
+                        text: `${watchtime}% watch time is solid! People are staying. This topic/format resonates. Double down on this style. Look at what you did differently here and replicate it.`,
+                        badges: ['Watch Time', 'Winner']
+                    });
+                } else if (watchtime >= 70) {
+                    insights.push({
+                        title: '🔥 Exceptional Performance',
+                        text: `${watchtime}% watch time is exceptional! This is reference-quality content. Analyze everything about this video - topic, pacing, delivery - and create a series around it. This is your template.`,
+                        badges: ['Watch Time', 'Template Content']
+                    });
+                }
+                
+                // CTR analysis
+                if (ctr < 2) {
+                    insights.push({
+                        title: '📸 Thumbnail/Title Needs Work',
+                        text: `${ctr}% CTR means people are scrolling past. Your content might be good (check watch time), but they're not clicking. Test: more contrast in thumbnails, clearer benefit in title, faces with emotion, or add curiosity gap.`,
+                        badges: ['CTR', 'Thumbnails']
+                    });
+                } else if (ctr >= 2 && ctr < 5) {
+                    insights.push({
+                        title: '👍 Decent Thumbnail Performance',
+                        text: `${ctr}% CTR is average. You're getting clicks, but there's room to improve. A/B test bolder thumbnails, test adding text overlays, or try the "before/after" format.`,
+                        badges: ['CTR', 'Optimization']
+                    });
+                } else if (ctr >= 5 && ctr < 10) {
+                    insights.push({
+                        title: '🎨 Strong Thumbnail/Title Combo',
+                        text: `${ctr}% CTR is strong! Your packaging works. Keep this thumbnail style - you've found something that cuts through the noise. Now focus on watch time to maximize these clicks.`,
+                        badges: ['CTR', 'Packaging']
+                    });
+                } else if (ctr >= 10) {
+                    insights.push({
+                        title: '🚀 Viral Thumbnail Potential',
+                        text: `${ctr}% CTR is exceptional! This thumbnail/title combo is working at a viral level. Document exactly what you did here - this is your winning formula. Replicate this pattern.`,
+                        badges: ['CTR', 'Viral Formula']
+                    });
+                }
+                
+                // Engagement analysis
+                const engagementRate = views > 0 ? ((likes + comments + shares) / views * 100).toFixed(2) : 0;
+                if (engagementRate < 2) {
+                    insights.push({
+                        title: '💬 Low Engagement Signal',
+                        text: `Only ${engagementRate}% engagement rate. People watched but didn't feel compelled to interact. Try: end with a question, create a debate, or ask viewers to comment their experience. Make interaction feel natural, not forced.`,
+                        badges: ['Engagement', 'CTA']
+                    });
+                } else if (engagementRate >= 2 && engagementRate < 5) {
+                    insights.push({
+                        title: '✨ Healthy Engagement',
+                        text: `${engagementRate}% engagement shows people are connecting. You're building community. Keep fostering discussion - respond to comments within first hour to boost visibility.`,
+                        badges: ['Engagement', 'Community']
+                    });
+                } else {
+                    insights.push({
+                        title: '🎉 Exceptional Community Building',
+                        text: `${engagementRate}% engagement is outstanding! Your audience is invested. This is rare. These engaged viewers will become your advocates - they'll share and recommend you organically.`,
+                        badges: ['Engagement', 'Superfans']
+                    });
+                }
+                
+                // Traffic source insights
+                if (traffic === 'search') {
+                    insights.push({
+                        title: '🔍 Search-Driven Content (GOLD)',
+                        text: `Search traffic means this content has evergreen potential! People are actively looking for this solution. Create more videos targeting related search terms - this is sustainable growth, not algorithm luck.`,
+                        badges: ['Traffic', 'Evergreen']
+                    });
+                } else if (traffic === 'external') {
+                    insights.push({
+                        title: '🌐 External Discovery',
+                        text: `External traffic (Google, etc.) is powerful! You're being discovered outside YouTube. This content solves a problem people search for online. Optimize for SEO - you're tapping into Google traffic.`,
+                        badges: ['Traffic', 'SEO Gold']
+                    });
+                } else if (traffic === 'suggested') {
+                    insights.push({
+                        title: '🎯 Algorithm Recommended',
+                        text: `Suggested video traffic means YouTube is recommending you! You're doing something right (watch time, CTR, or topic relevance). This traffic is less predictable - diversify by also targeting search content.`,
+                        badges: ['Traffic', 'Algorithm']
+                    });
+                }
+                
+            } else if (platform === 'tiktok') {
+                const views = parseInt(document.getElementById('tt-views').value) || 0;
+                const watchtime = parseInt(document.getElementById('tt-watchtime').value) || 0;
+                const likes = parseInt(document.getElementById('tt-likes').value) || 0;
+                const comments = parseInt(document.getElementById('tt-comments').value) || 0;
+                const shares = parseInt(document.getElementById('tt-shares').value) || 0;
+                const saves = parseInt(document.getElementById('tt-saves').value) || 0;
+                
+                // Watch time
+                if (watchtime < 40) {
+                    const hookMessages = [
+                        `${watchtime}% watch time on TikTok is critical. First 0.5 seconds matter more than YouTube. Start with movement, a question, or visual surprise. No slow intros - ever.`,
+                        `${watchtime}% retention means you're losing people in the first second. TikTok scrollers decide in 0.3 seconds. Test: start mid-action, use text overlay immediately, or open with a bold statement.`,
+                        `People are swiping away at ${watchtime}%. Your hook needs to stop the scroll INSTANTLY. Try: start with the result/payoff first, add a pattern interrupt (zoom, sound change), or begin with "Wait..." to create curiosity.`
+                    ];
+                    insights.push({
+                        title: '⏱️ TikTok Hook Crisis',
+                        text: hookMessages[Math.floor(Math.random() * hookMessages.length)],
+                        badges: ['Watch Time', 'Hook']
+                    });
+                } else if (watchtime >= 40 && watchtime < 60) {
+                    const midMessages = [
+                        `${watchtime}% watch time is working. To hit viral, aim for 70%+. Test: faster pacing, loop-able endings (so people rewatch), or add text captions to catch scrollers.`,
+                        `${watchtime}% retention is decent but not viral yet. Try cutting dead space - every second must earn its place. Add a mid-video hook ("but here's the best part...") to keep momentum.`,
+                        `You're at ${watchtime}% which is the "almost there" zone. Tighten your content - remove any moment where nothing is happening. Consider ending with a loop back to the start for rewatches.`
+                    ];
+                    insights.push({
+                        title: '📈 Decent TikTok Retention',
+                        text: midMessages[Math.floor(Math.random() * midMessages.length)],
+                        badges: ['Watch Time', 'Optimization']
+                    });
+                } else {
+                    const highMessages = [
+                        `${watchtime}% watch time is excellent for TikTok! People are watching multiple times or all the way through. This format/topic is hitting. Make 5 variations of this exact style.`,
+                        `${watchtime}% retention is in viral territory! You've nailed the pacing and hook. Document everything about this video - length, opening, pacing - and replicate it immediately.`,
+                        `${watchtime}% is exceptional! TikTok will push this harder. People are likely rewatching. Consider making this into a series - part 2, part 3 - to ride the momentum.`
+                    ];
+                    insights.push({
+                        title: '🎯 High Retention Content',
+                        text: highMessages[Math.floor(Math.random() * highMessages.length)],
+                        badges: ['Watch Time', 'Viral Potential']
+                    });
+                }
+                
+                // Saves analysis (CRITICAL for TikTok)
+                const saveRate = views > 0 ? (saves / views * 100).toFixed(2) : 0;
+                if (saves > likes) {
+                    const saveWinMessages = [
+                        `You have MORE saves (${saves}) than likes (${likes})! This is tutorial/valuable content people will return to. TikTok LOVES this. Create more "how-to" or "save this for later" content - it gets pushed harder.`,
+                        `${saves} saves vs ${likes} likes is the holy grail! You've created reference content. TikTok's algorithm rewards saves MORE than likes because it signals high value. This is your content direction.`,
+                        `Saves (${saves}) crushing likes (${likes}) means people see this as genuinely useful. Make a series - "Part 2: [topic]" will ride this momentum. TikTok will show it to the same people who saved Part 1.`
+                    ];
+                    insights.push({
+                        title: '💾 REFERENCE CONTENT (Massive Win)',
+                        text: saveWinMessages[Math.floor(Math.random() * saveWinMessages.length)],
+                        badges: ['Saves', 'Tutorial', 'Algorithm Boost']
+                    });
+                } else if (saveRate > 3) {
+                    const highSaveMessages = [
+                        `${saveRate}% save rate is strong. People see this as reference material. This content type should be your focus - it gets long-term reach as people revisit and share.`,
+                        `${saveRate}% save rate tells TikTok "this is valuable." Saved content gets shown to new audiences for weeks, not just days. Double down on this format.`,
+                        `With ${saveRate}% saves, you're in the top tier. Content that gets saved continues getting pushed long after posting. Create a content pillar around this topic.`
+                    ];
+                    insights.push({
+                        title: '📌 High-Value Content Signal',
+                        text: highSaveMessages[Math.floor(Math.random() * highSaveMessages.length)],
+                        badges: ['Saves', 'Valuable']
+                    });
+                } else if (saves < 10 && views > 1000) {
+                    const lowSaveMessages = [
+                        `Low saves but decent views? You're entertaining but not "saveable." Balance: mix in tutorials, tips, or "save this" content. Saveable content gets more algorithm love over time.`,
+                        `Views without saves means you're getting discovered but not bookmarked. TikTok wants "valuable" content. Try: listicles ("3 ways to..."), quick tutorials, or resource recommendations.`,
+                        `You're getting eyeballs (${views} views) but not saves (${saves}). That's fine for entertainment, but educational/tutorial content gets longer reach. Consider alternating content types.`
+                    ];
+                    insights.push({
+                        title: '🎭 Entertainment vs Value',
+                        text: lowSaveMessages[Math.floor(Math.random() * lowSaveMessages.length)],
+                        badges: ['Saves', 'Content Strategy']
+                    });
+                }
+                
+                // Shares
+                const shareRate = views > 0 ? (shares / views * 100).toFixed(2) : 0;
+                if (shareRate > 5) {
+                    const shareMessages = [
+                        `${shareRate}% share rate is incredible! People are sending this to friends. This is relatability or controversy working. What emotion did you trigger? Replicate it.`,
+                        `${shareRate}% shares is viral territory! People don't share unless they FEEL something - humor, shock, relatability, or value. Analyze what emotion this hit and recreate it.`,
+                        `Shares at ${shareRate}% means you've tapped into something shareable. Could be a hot take, relatable moment, or genuinely helpful. This is your template for virality.`
+                    ];
+                    insights.push({
+                        title: '🚀 Highly Shareable Content',
+                        text: shareMessages[Math.floor(Math.random() * shareMessages.length)],
+                        badges: ['Shares', 'Viral Signal']
+                    });
+                }
+                
+            } else if (platform === 'instagram') {
+                const reach = parseInt(document.getElementById('ig-reach').value) || 0;
+                const impressions = parseInt(document.getElementById('ig-impressions').value) || 0;
+                const saves = parseInt(document.getElementById('ig-saves').value) || 0;
+                const shares = parseInt(document.getElementById('ig-shares').value) || 0;
+                const likes = parseInt(document.getElementById('ig-likes').value) || 0;
+                
+                // Reach vs Impressions
+                const reachRatio = reach > 0 ? (impressions / reach).toFixed(2) : 0;
+                if (reachRatio > 1.5) {
+                    insights.push({
+                        title: '♻️ High Repeat Views',
+                        text: `Your impressions (${impressions}) are ${reachRatio}x your reach (${reach}). People are viewing multiple times or coming back. This content has "save and return" value. Great sign!`,
+                        badges: ['Impressions', 'Engagement']
+                    });
+                }
+                
+                // Saves (critical for Instagram)
+                const saveRate = reach > 0 ? (saves / reach * 100).toFixed(2) : 0;
+                if (saves > likes) {
+                    insights.push({
+                        title: '💎 Instagram LOVES This',
+                        text: `More saves (${saves}) than likes (${likes})! Instagram's algorithm prioritizes saves as a "quality" signal. You're creating reference content. Do more of THIS exact format.`,
+                        badges: ['Saves', 'Algorithm Gold']
+                    });
+                } else if (saveRate > 4) {
+                    insights.push({
+                        title: '📚 Valuable Reference Content',
+                        text: `${saveRate}% save rate is excellent. Instagram will push this to Explore. Carousels and tutorials get saved most - consider this format more often.`,
+                        badges: ['Saves', 'Explore Potential']
+                    });
+                } else if (saves < likes * 0.1) {
+                    insights.push({
+                        title: '⚡ Engagement vs Value Gap',
+                        text: `You have likes but few saves. You're entertaining but not "bookmark-worthy." Try: educational carousels, step-by-step guides, or resource lists. Saveable = shareable on IG.`,
+                        badges: ['Saves', 'Content Strategy']
+                    });
+                }
+                
+                // Shares
+                if (shares > likes * 0.5) {
+                    insights.push({
+                        title: '🔄 Highly Shareable Post',
+                        text: `Strong share rate! People are sending this to friends. This means it's either relatable, funny, or useful. What made it shareable? That's your pattern.`,
+                        badges: ['Shares', 'Viral Potential']
+                    });
+                }
+                
+            } else if (platform === 'facebook') {
+                const reach = parseInt(document.getElementById('fb-reach').value) || 0;
+                const engagement = parseInt(document.getElementById('fb-engagement').value) || 0;
+                const shares = parseInt(document.getElementById('fb-shares').value) || 0;
+                const reactions = parseInt(document.getElementById('fb-reactions').value) || 0;
+                
+                // Engagement rate
+                const engRate = reach > 0 ? (engagement / reach * 100).toFixed(2) : 0;
+                if (engRate < 1) {
+                    insights.push({
+                        title: '📉 Low Engagement Warning',
+                        text: `${engRate}% engagement rate is low for Facebook. Facebook prioritizes "meaningful interactions" - try posts that spark conversation or debate. Ask questions that need more than a like.`,
+                        badges: ['Engagement', 'Algorithm']
+                    });
+                } else if (engRate >= 1 && engRate < 3) {
+                    insights.push({
+                        title: '📊 Average Facebook Performance',
+                        text: `${engRate}% engagement is average. Facebook wants comments and shares (not just reactions). End posts with questions or create "tag a friend" moments.`,
+                        badges: ['Engagement', 'Community']
+                    });
+                } else {
+                    insights.push({
+                        title: '🎯 Strong Facebook Engagement',
+                        text: `${engRate}% engagement is strong! You're creating "meaningful interactions" that Facebook loves. This content will reach more people organically.`,
+                        badges: ['Engagement', 'Organic Reach']
+                    });
+                }
+                
+                // Shares analysis
+                if (shares > reactions) {
+                    insights.push({
+                        title: '🚀 Share-Worthy Content',
+                        text: `More shares than reactions! This is Facebook gold - shares multiply your reach exponentially. What made this shareable? Emotion, value, or controversy? Replicate it.`,
+                        badges: ['Shares', 'Viral']
+                    });
+                }
+            }
+            
+            // Add final action item
+            insights.push({
+                title: '🎬 Your Next Move',
+                text: getActionItem(platform),
+                badges: ['Action Plan']
+            });
+            
+            return insights;
+        }
+
+        function getActionItem(platform) {
+            if (platform === 'youtube') {
+                const watchtime = parseInt(document.getElementById('yt-watchtime').value) || 0;
+                const ctr = parseFloat(document.getElementById('yt-ctr').value) || 0;
+                
+                if (watchtime < 40 && ctr < 3) {
+                    return 'Priority: Fix your hook AND thumbnail. Test a stronger opening 10 seconds and a bolder thumbnail in your next video. Compare the results.';
+                } else if (watchtime < 40) {
+                    return 'Your thumbnail works (people click) but your hook doesn\'t deliver. Next video: Start with the payoff, cut your intro to 5 seconds max.';
+                } else if (ctr < 3) {
+                    return 'Your content is good (watch time proves it) but people aren\'t clicking. Test 3 different thumbnail styles this week - bold text, emotion-face, or before/after format.';
+                } else {
+                    return 'You\'re doing well! Now focus on consistency. Create 3 more videos in this exact style/topic and track if the pattern holds. Double down on what works.';
+                }
+            } else if (platform === 'tiktok') {
+                const saves = parseInt(document.getElementById('tt-saves').value) || 0;
+                const watchtime = parseInt(document.getElementById('tt-watchtime').value) || 0;
+                
+                if (saves < 10) {
+                    return 'Create "how-to" or tutorial content next. Start with "Save this for later" and deliver 3 quick tips. TikTok pushes saveable content harder.';
+                } else if (watchtime < 50) {
+                    return 'Your saves are good but watch time needs work. Cut your intro - get to the value in 0.5 seconds. Test a looping format so people rewatch.';
+                } else {
+                    return 'Your metrics are strong! Create 5 variations of this exact format. Post at same time for 5 days and track which variation performs best.';
+                }
+            } else if (platform === 'instagram') {
+                const saves = parseInt(document.getElementById('ig-saves').value) || 0;
+                const shares = parseInt(document.getElementById('ig-shares').value) || 0;
+                
+                if (saves < 20) {
+                    return 'Next post: Create a carousel with 5-7 slides teaching something useful. End with "Save this for later!" Instagram will push it to Explore.';
+                } else {
+                    return 'You\'re creating saveable content - that\'s the key to Instagram growth. Create a series of similar posts and track which topics get saved most.';
+                }
+            } else {
+                return 'Focus on creating posts that spark conversation. Ask questions, create mild debate, or share stories that people can relate to. Facebook prioritizes comments and shares.';
+            }
+        }
+
+        function displayInsights(insights) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = '<div class="card"><h2 style="margin-bottom: 20px;">🔮 Your Insights</h2></div>';
+            
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = 'insight-card';
+                insightCard.innerHTML = `
+                    <div class="insight-title">${insight.title}</div>
+                    <div style="margin-bottom: 10px;">
+                        ${insight.badges.map(badge => `<span class="metric-badge">${badge}</span>`).join('')}
+                    </div>
+                    <div class="insight-text">${insight.text}</div>
+                `;
+                container.querySelector('.card').appendChild(insightCard);
+            });
+            
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function updateHistoryDisplay() {
+            if (analysisHistory.length === 0) return;
+            
+            const historySection = document.getElementById('history-section');
+            const historyList = document.getElementById('history-list');
+            
+            historySection.style.display = 'block';
+            historyList.innerHTML = '';
+            
+            analysisHistory.slice(0, 10).forEach((entry, index) => {
+                const date = new Date(entry.date);
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${entry.platform.toUpperCase()}</strong> - ${entry.data[entry.platform === 'youtube' ? 'yt-title' : 
+                                entry.platform === 'tiktok' ? 'tt-title' : 
+                                entry.platform === 'instagram' ? 'ig-title' : 'fb-title'] || 'Untitled'}
+                        </div>
+                        <div class="history-date">${date.toLocaleDateString()}</div>
+                    </div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    displayInsights(entry.insights);
+                });
+                
+                historyList.appendChild(item);
+            });
+        }
+
+        // ---- AI Growth Coach ----
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function buildCoachPrompt(userContext) {
+            let dataContext = '';
+            if (currentPlatform) {
+                const formData = getCurrentFormData();
+                const readableData = Object.entries(formData)
+                    .filter(([, value]) => value !== '' && value !== null && value !== undefined)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(', ');
+                if (readableData) {
+                    dataContext = `\n\nThey also entered these ${currentPlatform} metrics into the tool: ${readableData}.`;
+                }
+            }
+
+            return `You are a warm, practical social media growth coach. You're helping an everyday, independent content creator (not a big brand with a team or budget) understand their content performance and turn it into real growth and income. Keep advice realistic and doable for someone working solo.
+
+Here is what the creator told you about their situation:
+"${userContext}"${dataContext}
+
+Please give them:
+1. A short, plain-language read on what's likely happening with their content
+2. 2-3 specific, concrete next actions they can take this week
+3. One short, encouraging closing line
+
+Keep your tone conversational and specific to what they shared - avoid generic advice. Keep the whole response under 200 words. Do not use markdown formatting like asterisks or hashtags, just plain text with line breaks.`;
+        }
+
+        document.getElementById('aiCoachBtn').addEventListener('click', async function() {
+            const userContext = document.getElementById('ai-context').value.trim();
+
+            if (!userContext) {
+                alert('Tell the Coach a bit about what\'s going on with your content first!');
+                return;
+            }
+
+            const btn = document.getElementById('aiCoachBtn');
+            const loadingEl = document.getElementById('ai-loading');
+            const resultEl = document.getElementById('ai-result');
+            const errorEl = document.getElementById('ai-error');
+
+            resultEl.style.display = 'none';
+            errorEl.style.display = 'none';
+            loadingEl.style.display = 'block';
+            btn.disabled = true;
+
+            const prompt = buildCoachPrompt(userContext);
+
+            try {
+                const response = await fetch('/.netlify/functions/ask-claude', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Request failed with status ' + response.status);
+                }
+
+                const data = await response.json();
+
+                if (!data || !data.text) {
+                    throw new Error('No text in response');
+                }
+
+                resultEl.innerHTML = `
+                    <div class="insight-title">🤖 Your AI Coach Says:</div>
+                    <div class="insight-text">${escapeHtml(data.text)}</div>
+                `;
+                resultEl.style.display = 'block';
+                resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (err) {
+                errorEl.style.display = 'block';
+                errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                loadingEl.style.display = 'none';
+                btn.disabled = false;
+            }
+        });
+
+        // Load history on page load
+        updateHistoryDisplay();
+    </script>
+</body>
+</html>
