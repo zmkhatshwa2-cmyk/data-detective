@@ -414,6 +414,62 @@
             line-height: 1.5;
         }
 
+        /* Caption Generator styles */
+        #captionBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .caption-result {
+            display: none;
+            margin-top: 20px;
+            background: var(--black);
+            border-radius: 16px;
+            padding: 22px 24px;
+            position: relative;
+        }
+
+        .caption-result .insight-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #00d63a;
+            margin-bottom: 12px;
+        }
+
+        .caption-text {
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.15em;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .copy-btn {
+            padding: 10px 18px;
+            border: 1.5px solid rgba(0, 214, 58, 0.4);
+            border-radius: 10px;
+            background: rgba(0, 214, 58, 0.1);
+            color: var(--green);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--green);
+            color: var(--black);
+        }
+
+        .copy-btn.copied {
+            background: var(--green);
+            color: var(--black);
+            border-color: var(--green);
+        }
+
         /* Footer */
         .page-footer {
             background: var(--black);
@@ -672,6 +728,30 @@
             <div class="ai-error" id="ai-error">
                 ⚠️ Couldn't reach your AI Coach right now. This sometimes happens with a flaky connection — check your internet and give it another try in a moment.
             </div>
+        </div>
+
+        <div class="card" id="caption-card">
+            <h2>✍️ Caption Generator</h2>
+            <p class="ai-subtitle">Tell it what your post is about, and get a short, upbeat caption with an emoji — ready to paste and post.</p>
+
+            <div class="input-group">
+                <label for="caption-topic">What's your post about?</label>
+                <input type="text" id="caption-topic" placeholder="e.g., 3 free Canva tricks for small business logos">
+            </div>
+
+            <button class="btn-primary" id="captionBtn">✨ Generate Caption</button>
+
+            <div class="ai-loading" id="caption-loading">
+                <span class="ai-spinner"></span>Writing your caption...
+            </div>
+
+            <div class="caption-result" id="caption-result">
+                <div class="insight-title">Your Caption</div>
+                <div class="caption-text" id="caption-text"></div>
+                <button class="copy-btn" id="copyCaptionBtn">📋 Copy to Clipboard</button>
+            </div>
+
+            <div class="ai-error" id="caption-error"></div>
         </div>
 
         <div class="history-section" id="history-section" style="display: none;">
@@ -1234,6 +1314,85 @@ Keep your tone conversational and specific to what they shared - avoid generic a
                 loadingEl.style.display = 'none';
                 btn.disabled = false;
             }
+        });
+
+        // ---- Caption Generator ----
+
+        function buildCaptionPrompt(topic) {
+            return `You are a social media caption writer for an independent content creator. Write ONE short, upbeat social media caption about this topic: "${topic}"
+
+Rules:
+- Under 150 characters total (including the emoji)
+- Include exactly one relevant emoji, placed naturally
+- Upbeat, friendly, scroll-stopping tone
+- No hashtags, no quotation marks, no markdown
+- Output ONLY the caption text, nothing else - no preamble, no explanation`;
+        }
+
+        document.getElementById('captionBtn').addEventListener('click', async function() {
+            const topic = document.getElementById('caption-topic').value.trim();
+
+            const loadingEl = document.getElementById('caption-loading');
+            const resultEl = document.getElementById('caption-result');
+            const errorEl = document.getElementById('caption-error');
+            const btn = document.getElementById('captionBtn');
+
+            resultEl.style.display = 'none';
+            errorEl.style.display = 'none';
+
+            if (!topic) {
+                errorEl.textContent = '⚠️ Please tell us what your post is about first.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            loadingEl.style.display = 'block';
+            btn.disabled = true;
+
+            const prompt = buildCaptionPrompt(topic);
+
+            try {
+                const response = await fetch('/.netlify/functions/ask-claude', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data || data.error) {
+                    throw new Error((data && data.error) ? data.error : 'Request failed with status ' + response.status);
+                }
+
+                if (!data.text) {
+                    throw new Error('No caption came back. Please try again.');
+                }
+
+                document.getElementById('caption-text').textContent = data.text.trim();
+                resultEl.style.display = 'block';
+                resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (err) {
+                errorEl.textContent = '⚠️ ' + err.message;
+                errorEl.style.display = 'block';
+                errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                loadingEl.style.display = 'none';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('copyCaptionBtn').addEventListener('click', function() {
+            const text = document.getElementById('caption-text').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyCaptionBtn');
+                const originalLabel = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = originalLabel;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
         });
 
         // Load history on page load
